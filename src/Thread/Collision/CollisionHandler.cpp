@@ -305,15 +305,17 @@ namespace Thread::Collision
     void CollisionHandler::RemoveActor(RE::FormID a_actor)
     {
         const std::unique_lock lock{ _mutex };
-        if (std::erase(_cache, a_actor) == 0) {
-            return;
-        }
+        const auto wasCached = std::erase(_cache, a_actor) != 0;
 
         auto* actor = RE::TESForm::LookupByID<RE::Actor>(a_actor);
         if (!actor)
             return;
 
+        // An actor from a save made mid scene is not in the cache, but its graph comes back with foot IK
+        // still switched off, which draws the skeleton off the ground until its 3D is rebuilt
         SetFootIKEnabled(actor, true);
-        RestoreRigidBodyPhysics(actor);
+        if (wasCached) {
+            RestoreRigidBodyPhysics(actor);
+        }
     }
 }
