@@ -68,6 +68,9 @@ namespace Thread
         static void FinalizeCenterRefSelection(RE::TESQuest* a_linkedQst);
         static void DispatchContinueSetup(RE::TESQuest* a_linkedQst, bool a_result);
         static void UpdateAnimations(float a_delta);
+        static void SavePreparedActors(SKSE::SerializationInterface* a_intfc);
+        static void LoadPreparedActors(SKSE::SerializationInterface* a_intfc);
+        static void RevertPreparedActors();
 
       public:
         bool HasInstanceNiSurface() const { return GetInstanceNiSurface() != nullptr; }
