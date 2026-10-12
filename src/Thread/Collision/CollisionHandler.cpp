@@ -302,20 +302,19 @@ namespace Thread::Collision
         SetFootIKEnabled(actor, false);
     }
 
-    void CollisionHandler::RemoveActor(RE::FormID a_actor)
+    bool CollisionHandler::RemoveActor(RE::FormID a_actor)
     {
         const std::unique_lock lock{ _mutex };
         const auto wasCached = std::erase(_cache, a_actor) != 0;
 
         auto* actor = RE::TESForm::LookupByID<RE::Actor>(a_actor);
         if (!actor)
-            return;
+            return wasCached;
 
-        // An actor from a save made mid scene is not in the cache, but its graph comes back with foot IK
-        // still switched off, which draws the skeleton off the ground until its 3D is rebuilt
+        // An actor from a save made mid scene is not in the cache, but it comes back the way the scene left it
+        // (swimming state, no gravity, no simulation, foot IK off), so it gets the same restore
         SetFootIKEnabled(actor, true);
-        if (wasCached) {
-            RestoreRigidBodyPhysics(actor);
-        }
+        RestoreRigidBodyPhysics(actor);
+        return wasCached;
     }
 }
